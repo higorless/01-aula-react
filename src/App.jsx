@@ -1,7 +1,15 @@
+import { Header } from "./components/Header/Header"
+
+import './style.css'
+
 export function App() {
   return (
-    <h1> Hello World! </h1>
+    <div>
+      <Header/> 
+    </div>
   )
 }
+
+
 
 
