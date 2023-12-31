@@ -1,29 +1,87 @@
-import styles from './Post.module.css'
+/* eslint-disable react/jsx-key */
+/* eslint-disable react/prop-types */
+import { format, formatDistanceToNow } from 'date-fns'; 
+import ptBR from 'date-fns/locale/pt-BR'
 
-export function Post () {
+import { Avatar } from '../Avatar'
+import { Comment } from '../Comment'
+import styles from './Post.module.css'
+import { useState } from 'react';
+
+
+export function Post ({ author, publishedAt, content }) {
+  
+  const [comments, setComments] = useState([
+    'Post muito bacana, hein?!'
+  ])
+
+  const [newCommentText, setNewCommentText] = useState('')
+  
+  const publishedDateFormatted = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {
+    locale: ptBR,
+  })
+
+  const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, {
+    locale:ptBR,
+    addSuffix: true
+  })
+
+  function handleNewCommentChange () {
+    setNewCommentText(event.target.value)
+  }
+
+  function handleCreateNewCommnet () {
+    event.preventDefault()
+    
+    setComments([...comments, newCommentText]);
+    setNewCommentText(''); 
+  }
+
   return (
     <article className={styles.post}>
       <header>
         <div className={styles.author}> 
-          <img className={styles.avatar} src="https://github.com/higorless.png"></img>
+          <Avatar src={author.avatarUrl}/>
           <div className={styles.authorInfo}>
-            <strong>Higor Gomes</strong>
-            <span>Web Developer</span>
+            <strong>{author.name}</strong>
+            <span>{author.role}</span>
           </div>
         </div>
 
-        <time title="11 de Maio às 8:13" dateTime="">Publicado </time>
+        <time title={publishedDateFormatted} dateTime={publishedAt.toISOString()}>
+          {publishedDateRelativeToNow}
+        </time>
       </header>
 
       <div className={styles.content}>
-        <p>Fala Galeraa</p>
+        {content.map(line => {
+          if (line.type === 'paragraph') {
+            return <p>{line.content}</p>
+          } else if (line.type === 'link'){
+            return <p><a href="">{line.content}</a></p>
+          }
+        })}
+      </div>
 
-        <p>Acabei de subir mais um projeto no meu portifa. É um projeto que fiz no NLW Reutnr, evento da 
-        rocket seat</p>
+      <form onSubmit={handleCreateNewCommnet} className={styles.commentForm}>
+        <strong> Deixe seu Feedback </strong>
 
-        <p> higor.desing/legal</p>
+        <textarea 
+          name="comment" 
+          placeholder="Deixe um comentário" 
+          value={newCommentText}
+          onChange={handleNewCommentChange}
+        />    
 
-        <p> #novoprojeto </p>
+        <footer> 
+          <button type="submit">Comentar</button>
+        </footer>
+      </form>
+
+      <div className={styles.commentList}>
+        {comments.map(comment => {
+          return <Comment content={comment}/>
+        })}
       </div>
     </article>
   )
